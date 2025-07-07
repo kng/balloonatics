@@ -48,6 +48,19 @@ RUN unzip /tmp/librtlsdr.zip -d /tmp && \
   ls -alR /usr/local/lib/* && \
   rm -rf /tmp/librtlsdr-master
 
+# Install SDRPlay
+ADD https://www.sdrplay.com/software/SDRplay_RSP_API-Linux-3.15.2.run /tmp/sdrplay_api
+RUN MAJVERS=3 &&\
+    VERS=3.15 &&\
+    DIR=$(dpkg --print-architecture) &&\
+    PREFIX=/usr/local &&\
+    sh /tmp/sdrplay_api --noexec --target /tmp/sdrplay &&\
+    install -m 755 /tmp/sdrplay/${DIR}/sdrplay_apiService ${PREFIX}/bin/ &&\
+    install -m 644 /tmp/sdrplay/inc/sdrplay_api*.h ${PREFIX}/include/ &&\
+    install -m 644 /tmp/sdrplay/${DIR}/libsdrplay_api.so.${VERS} ${PREFIX}/lib/ &&\
+    ln -sf libsdrplay_api.so.${VERS} ${PREFIX}/lib/libsdrplay_api.so.${MAJVERS} &&\
+    ln -sf libsdrplay_api.so.${MAJVERS} ${PREFIX}/lib/libsdrplay_api.so &&\
+    ldconfig
 
 # Download the source code into the build container
 ADD https://github.com/ka9q/ka9q-radio/archive/$REF.zip /tmp/ka9q-radio.zip
@@ -78,8 +91,8 @@ RUN apt-get update && \
     libfftw3-single3 \
     libhackrf0 \
     libiniparser1 \
-    libncurses5 \
-    libncursesw5 \
+    libncurses6 \
+    libncursesw6 \
     libogg0 \
     libopus0 \
     libportaudio2 \
@@ -112,6 +125,7 @@ COPY --from=build \
     /src/powers \
     /src/tune \
     /src/wd-record \
+    /usr/local/bin/sdrplay_apiService \
     /usr/local/bin/
 
 # Copy shared resources from the build stage

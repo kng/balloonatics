@@ -7,6 +7,10 @@ services:
   ka9q-radio:
     #build: https://github.com/snh/dockerfiles.git#main:ka9q-radio
     build: ./ka9q-radio
+    command: bash -c "
+        sdrplay_apiService &
+        radiod /etc/radio/radiod.conf
+      "
     restart: 'always'
     cap_add:
       - CAP_NET_ADMIN
